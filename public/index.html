@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audytor KSC/NIS2 — Zgodność z ustawą z 3 kwietnia 2026 r.</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#185FA5;--blue-d:#0C447C;--blue-l:#E6F1FB;--blue-m:#378ADD;
+  --teal:#0F6E56;--teal-l:#E1F5EE;--teal-m:#1D9E75;
+  --red:#A32D2D;--red-l:#FCEBEB;--red-m:#E24B4A;
+  --amber:#854F0B;--amber-l:#FAEEDA;--amber-m:#BA7517;
+  --green:#3B6D11;--green-l:#EAF3DE;--green-m:#639922;
+  --purple:#3C3489;--purple-l:#EEEDFE;
+  --gray:#F7F6F2;--gray-b:#D3D1C7;--gray-m:#888780;
+  --text:#1a1a18;--text2:#5F5E5A;--text3:#888780;
+  --r:10px;--rs:6px;--rm:8px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--gray);color:var(--text);line-height:1.6}
+.app{max-width:820px;margin:0 auto;padding:28px 16px 100px}
+
+/* HERO */
+.hero{background:var(--blue-d);border-radius:var(--r);padding:28px 26px;margin-bottom:22px;color:white}
+.hero-badge{font-size:11px;font-weight:500;background:rgba(255,255,255,.15);padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:12px;letter-spacing:.05em}
+.hero h1{font-size:22px;font-weight:700;line-height:1.3;margin-bottom:8px}
+.hero p{font-size:14px;opacity:.85;margin-bottom:16px;max-width:600px}
+.hero-pills{display:flex;gap:8px;flex-wrap:wrap}
+.hero-pill{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 12px;font-size:12px}
+.hero-pill strong{font-weight:700}
+
+/* STEPPER */
+.stepper{display:flex;align-items:center;margin-bottom:20px;background:white;border:1px solid var(--gray-b);border-radius:var(--r);padding:12px 18px}
+.step-item{flex:1;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:500;color:var(--text3)}
+.step-item.active{color:var(--blue)}
+.step-item.done{color:var(--green)}
+.step-dot{width:22px;height:22px;border-radius:50%;background:var(--gray);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:var(--text3)}
+.step-item.active .step-dot{background:var(--blue);color:white}
+.step-item.done .step-dot{background:var(--green);color:white}
+.step-line{flex:1;height:1px;background:var(--gray-b);margin:0 8px}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:18px}
+.prog-bar{height:4px;background:var(--gray-b);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--blue-m);border-radius:2px;transition:width .4s}
+.prog-label{font-size:12px;color:var(--text2);margin-top:5px;display:flex;justify-content:space-between}
+
+/* KARTA */
+.card{background:white;border:1px solid var(--gray-b);border-radius:var(--r);padding:18px 20px;margin-bottom:10px}
+.card-title{font-size:14px;font-weight:600;margin-bottom:14px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:4px}
+.field input,.field select{width:100%;padding:8px 11px;border:1px solid var(--gray-b);border-radius:var(--rs);font-size:14px;background:white;color:var(--text);outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus{border-color:var(--blue-m)}
+.field-hint{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* NAGŁÓWEK SEKCJI */
+.sec-hdr{display:flex;align-items:center;gap:10px;margin:20px 0 8px}
+.sec-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.05em}
+.sb-a{background:var(--blue-l);color:var(--blue-d)}
+.sb-b{background:var(--amber-l);color:var(--amber)}
+.sb-c{background:var(--purple-l);color:var(--purple)}
+.sb-d{background:var(--red-l);color:var(--red)}
+.sb-e{background:var(--teal-l);color:var(--teal)}
+.sec-title{font-size:14px;font-weight:600}
+.sec-score{margin-left:auto;font-size:11px;color:var(--text2)}
+
+/* PYTANIE */
+.q-card{background:white;border:1px solid var(--gray-b);border-radius:var(--r);padding:14px 16px;margin-bottom:7px;transition:all .2s}
+.q-card.ay{border-color:#9FE1CB;background:#FAFFFE}
+.q-card.an{border-color:#F09595;background:#FFFAFA}
+.q-head{display:flex;gap:9px;align-items:flex-start;margin-bottom:8px}
+.q-num{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:var(--gray);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text2)}
+.q-num.dy{background:var(--green-l);color:var(--green)}
+.q-num.dn{background:var(--red-l);color:var(--red)}
+.q-text{font-size:13px;font-weight:500;line-height:1.5}
+.q-meta{display:flex;gap:6px;padding-left:29px;margin-bottom:8px;flex-wrap:wrap}
+.q-law{font-size:10px;color:var(--blue);background:var(--blue-l);padding:1px 7px;border-radius:20px}
+.q-tag{font-size:10px;background:var(--gray);color:var(--text2);padding:1px 7px;border-radius:20px}
+.q-tag.warn{background:var(--amber-l);color:var(--amber)}
+.q-btns{display:flex;gap:6px;padding-left:29px}
+.q-btn{flex:1;padding:7px 0;border:1px solid var(--gray-b);border-radius:var(--rs);background:white;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;color:var(--text)}
+.q-btn:hover{background:var(--gray)}
+.q-btn.yes{border-color:var(--teal-m);background:var(--teal-l);color:var(--teal)}
+.q-btn.no{border-color:var(--red-m);background:var(--red-l);color:var(--red)}
+
+/* SKAN */
+.scan-card{background:white;border:1px solid var(--gray-b);border-radius:var(--r);padding:16px 18px;margin:8px 0}
+.scan-card h4{font-size:13px;font-weight:600;margin-bottom:3px}
+.scan-card p{font-size:12px;color:var(--text2);margin-bottom:10px}
+.scan-row{display:flex;gap:8px}
+.scan-input{flex:1;padding:8px 11px;border:1px solid var(--gray-b);border-radius:var(--rs);font-size:13px;outline:none}
+.scan-input:focus{border-color:var(--blue-m)}
+.btn-scan{padding:8px 16px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer}
+.scan-results{margin-top:12px;display:flex;flex-direction:column;gap:7px}
+.scan-item{display:flex;gap:10px;padding:9px 12px;border-radius:var(--rm);border:1px solid var(--gray-b);align-items:flex-start}
+.si-ok{background:var(--green-l);border-color:#9FE1CB}
+.si-error{background:var(--red-l);border-color:#F09595}
+.si-warning{background:var(--amber-l);border-color:#FAC775}
+.si-info{background:var(--blue-l);border-color:#B5D4F4}
+.si-icon{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;margin-top:1px}
+.si-ok .si-icon{background:var(--green-m);color:white}
+.si-error .si-icon{background:var(--red-m);color:white}
+.si-warning .si-icon{background:var(--amber-m);color:white}
+.si-info .si-icon{background:var(--blue-m);color:white}
+.si-name{font-size:12px;font-weight:500}
+.si-detail{font-size:11px;color:var(--text2);margin-top:1px}
+
+/* DASHBOARD */
+.dashboard{background:white;border:1px solid var(--gray-b);border-radius:var(--r);padding:20px;margin-top:16px;display:none}
+.dash-top{display:flex;gap:22px;margin-bottom:18px;flex-wrap:wrap}
+.dash-ring{text-align:center;flex-shrink:0}
+.ring-wrap{position:relative;width:108px;height:108px;margin:0 auto 6px}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:var(--gray-b);stroke-width:10}
+.ring-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1s ease,stroke .5s}
+.ring-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+.ring-num{font-size:24px;font-weight:700;line-height:1}
+.ring-sub{font-size:11px;color:var(--text2)}
+.ring-grade{font-size:12px;font-weight:600;margin-top:4px}
+.dash-blocks{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:7px;min-width:220px}
+.blk{background:var(--gray);border-radius:var(--rm);padding:9px 11px}
+.blk-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.blk-name{font-size:11px;font-weight:600}
+.blk-pct{font-size:11px;font-weight:700}
+.blk-bar{height:3px;background:var(--gray-b);border-radius:2px;overflow:hidden}
+.blk-fill{height:100%;border-radius:2px;transition:width .8s}
+.gap-grid{display:flex;flex-direction:column;gap:5px}
+.gap-item{display:flex;gap:9px;padding:9px 11px;border-radius:var(--rm);border-left:3px solid}
+.gap-item.crit{background:var(--red-l);border-color:var(--red-m)}
+.gap-item.high{background:var(--amber-l);border-color:var(--amber-m)}
+.gap-item.med{background:var(--blue-l);border-color:var(--blue-m)}
+.gap-badge{font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 6px;border-radius:10px;flex-shrink:0;margin-top:1px}
+.gap-badge.crit{background:var(--red-m);color:white}
+.gap-badge.high{background:var(--amber-m);color:white}
+.gap-badge.med{background:var(--blue-m);color:white}
+.gap-title{font-size:12px;font-weight:500}
+.gap-desc{font-size:11px;color:var(--text2);margin-top:1px}
+
+/* KOSZTY */
+.cost-box{background:white;border:1px solid var(--gray-b);border-radius:var(--r);padding:18px 20px;margin-top:10px;display:none}
+.cost-title{font-size:13px;font-weight:600;margin-bottom:12px}
+.cost-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.cost-card{border-radius:var(--rm);padding:12px;text-align:center}
+.cc-blue{background:var(--blue-l)}
+.cc-red{background:var(--red-l)}
+.cc-green{background:var(--green-l)}
+.cost-val{font-size:16px;font-weight:700;margin-bottom:2px}
+.cc-blue .cost-val{color:var(--blue-d)}
+.cc-red .cost-val{color:var(--red)}
+.cc-green .cost-val{color:var(--green)}
+.cost-lbl{font-size:11px;font-weight:500}
+.cc-blue .cost-lbl{color:var(--blue)}
+.cc-red .cost-lbl{color:var(--red)}
+.cc-green .cost-lbl{color:var(--green)}
+.cost-items{display:flex;flex-direction:column;gap:4px}
+.cost-item{display:flex;justify-content:space-between;padding:6px 10px;background:var(--gray);border-radius:var(--rs);font-size:12px}
+.cost-item-name{color:var(--text2)}
+.cost-item-val{font-weight:600}
+.cost-note{font-size:11px;color:var(--text3);margin-top:8px}
+
+/* TIMELINE */
+.tl-box{background:white;border:1px solid var(--gray-b);border-radius:var(--r);padding:18px 20px;margin-top:10px;display:none}
+.tl-title{font-size:13px;font-weight:600;margin-bottom:12px}
+.tl-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.tl-phase{border-radius:var(--rm);overflow:hidden}
+.tl-hdr{padding:9px 12px;font-size:11px;font-weight:700;color:white;letter-spacing:.04em}
+.tl-p1 .tl-hdr{background:var(--red-m)}
+.tl-p2 .tl-hdr{background:var(--amber-m)}
+.tl-p3 .tl-hdr{background:var(--green-m)}
+.tl-body{padding:9px 12px;background:var(--gray);display:flex;flex-direction:column;gap:5px}
+.tl-task{font-size:11px;color:var(--text);display:flex;gap:5px;line-height:1.4}
+.tl-task::before{content:"→";flex-shrink:0;color:var(--text3)}
+.tl-deadline{font-size:11px;font-weight:700;padding:4px 10px;text-align:center;border-top:1px solid var(--gray-b)}
+.tl-p1 .tl-deadline{color:var(--red);background:var(--red-l)}
+.tl-p2 .tl-deadline{color:var(--amber);background:var(--amber-l)}
+.tl-p3 .tl-deadline{color:var(--green);background:var(--green-l)}
+
+/* CTA */
+.cta-box{background:var(--blue-d);color:white;border-radius:var(--r);padding:24px;margin-top:16px;text-align:center;display:none}
+.cta-box h3{font-size:18px;font-weight:700;margin-bottom:6px}
+.cta-box p{font-size:13px;opacity:.85;margin-bottom:18px}
+.btn-gen{background:white;color:var(--blue-d);border:none;padding:12px 32px;border-radius:var(--rs);font-size:15px;font-weight:700;cursor:pointer}
+.btn-gen:hover{opacity:.9}
+
+/* LOADING */
+.loading-box{background:white;border:1px solid var(--gray-b);border-radius:var(--r);padding:36px 24px;text-align:center;margin-top:16px;display:none}
+.spinner{width:32px;height:32px;border:3px solid var(--gray-b);border-top-color:var(--blue-m);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 14px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lstep{font-size:13px;color:var(--text2);padding:2px 0}
+.lstep.active{color:var(--blue);font-weight:600}
+.lstep.done{color:var(--green)}
+
+/* RAPORT */
+.rbox{background:white;border:1px solid var(--gray-b);border-radius:var(--r);margin-top:16px;overflow:hidden;display:none}
+.r-hdr{background:var(--blue-d);color:white;padding:22px 26px}
+.r-hdr h2{font-size:19px;font-weight:700;margin-bottom:3px}
+.r-hdr-sub{font-size:12px;opacity:.75;margin-bottom:14px}
+.r-meta{display:flex;gap:18px;flex-wrap:wrap}
+.rm{font-size:11px;opacity:.8}
+.rm strong{display:block;font-size:13px;font-weight:600;opacity:1}
+.status-pill{display:inline-block;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700}
+.sp-danger{background:var(--red-l);color:var(--red)}
+.sp-warning{background:var(--amber-l);color:var(--amber)}
+.sp-ok{background:var(--green-l);color:var(--green)}
+.r-body{padding:22px 26px}
+.r-sec{margin-bottom:20px;padding-bottom:18px;border-bottom:1px solid #EEEBE4}
+.r-sec:last-child{border-bottom:none;padding-bottom:0}
+.r-sec h3{font-size:11px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.07em;margin-bottom:9px;display:flex;align-items:center;gap:8px}
+.r-sec h3::after{content:'';flex:1;height:1px;background:var(--blue-l)}
+.r-content{font-size:13px;line-height:1.85;color:var(--text)}
+.r-content p{margin-bottom:9px}
+.r-content p:last-child{margin-bottom:0}
+
+/* SZABLONY */
+.tpl-sec{padding:0 26px 22px}
+.tpl-title{font-size:13px;font-weight:600;margin-bottom:4px}
+.tpl-sub{font-size:12px;color:var(--text2);margin-bottom:12px}
+.tpl-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:12px}
+.tpl-btn{padding:11px 8px;border:1px solid var(--gray-b);border-radius:var(--rm);background:white;font-size:11px;font-weight:500;cursor:pointer;text-align:left;color:var(--text);transition:all .15s;line-height:1.4}
+.tpl-btn:hover{background:var(--blue-l);border-color:var(--blue-m);color:var(--blue)}
+.tpl-btn strong{display:block;margin-bottom:2px}
+.tpl-btn span{color:var(--text3);font-size:10px}
+.tpl-loading{font-size:12px;color:var(--text2);padding:6px 0;display:none}
+.tpl-result{background:var(--gray);border-radius:var(--rm);padding:14px;display:none;margin-bottom:12px}
+.tpl-result-title{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.tpl-result-body{font-size:12px;line-height:1.8;white-space:pre-wrap;max-height:340px;overflow-y:auto}
+.tpl-actions{display:flex;gap:6px;margin-top:8px}
+.btn-sm{font-size:12px;padding:5px 12px;border:1px solid var(--gray-b);border-radius:var(--rs);background:white;cursor:pointer}
+.btn-sm.primary{background:var(--blue);color:white;border-color:var(--blue)}
+
+/* UPSELL */
+.upsell{background:var(--teal-l);border-top:1px solid #9FE1CB;padding:16px 26px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.upsell-text h4{font-size:13px;font-weight:600;color:var(--teal);margin-bottom:3px}
+.upsell-text p{font-size:12px;color:var(--teal);opacity:.85}
+.btn-upsell{background:var(--teal);color:white;border:none;padding:8px 18px;border-radius:var(--rs);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}
+
+/* DISCLAIMER + AKCJE */
+.disclaimer{padding:12px 26px;font-size:11px;color:var(--text3);line-height:1.6;border-top:1px solid var(--gray-b)}
+.r-actions{padding:12px 26px;display:flex;gap:8px;background:var(--gray);border-top:1px solid var(--gray-b)}
+.btn-act{padding:8px 16px;border:1px solid var(--gray-b);border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;background:white;color:var(--text)}
+.btn-act.primary{background:var(--blue);color:white;border-color:var(--blue)}
+
+.err-box{background:var(--red-l);border:1px solid #F09595;border-radius:var(--r);padding:14px 18px;margin-top:12px;font-size:13px;color:var(--red);display:none}
+
+@media print{
+  body{background:white}
+  .app{max-width:100%;padding:0}
+  .hero,.stepper,.prog-wrap,.sec-hdr,.q-card,.scan-card,.cta-box,.loading-box,.err-box,.dashboard,.cost-box,.tl-box,.tpl-sec,.upsell,.r-actions,.btn-act{display:none!important}
+  .rbox{display:block!important;border:none}
+  .r-hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{margin:1.5cm}
+}
+@media(max-width:540px){
+  .frow,.tpl-grid,.cost-grid,.tl-grid,.dash-blocks{grid-template-columns:1fr}
+  .q-btns{flex-direction:column}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">KSC / NIS2 · Ustawa z 3 kwietnia 2026 r. · Branża spożywcza</div>
+  <h1>Audyt zgodności z ustawą KSC — sprawdź gotowość swojej firmy</h1>
+  <p>20 pytań, 5 minut, pełny raport luk z gotowymi dokumentami i kalkulacją kosztów wdrożenia. Raport dostosowany do Twojego sektora i skali działalności.</p>
+  <div class="hero-pills">
+    <div class="hero-pill"><strong>do 7 mln EUR</strong> kara dla podmiotu ważnego</div>
+    <div class="hero-pill"><strong>7 maj – 3 paź 2026</strong> okno rejestracji w S46</div>
+    <div class="hero-pill"><strong>5 gotowych dokumentów</strong> do pobrania w raporcie</div>
+    <div class="hero-pill"><strong>Kalkulator kosztów</strong> wdrożenia vs. kara</div>
+  </div>
+</div>
+
+<!-- STEPPER -->
+<div class="stepper">
+  <div class="step-item active" id="step1"><div class="step-dot">1</div>Dane firmy i kwalifikacja</div>
+  <div class="step-line"></div>
+  <div class="step-item" id="step2"><div class="step-dot">2</div>Audyt 20 obszarów</div>
+  <div class="step-line"></div>
+  <div class="step-item" id="step3"><div class="step-dot">3</div>Raport i dokumenty</div>
+</div>
+
+<!-- POSTĘP -->
+<div class="prog-wrap">
+  <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+  <div class="prog-label">
+    <span id="prog-label">0 z 20 pytań uzupełnionych</span>
+    <span id="prog-score" style="font-weight:600;color:var(--blue)"></span>
+  </div>
+</div>
+
+<!-- DANE FIRMY -->
+<div class="card">
+  <div class="card-title">Dane firmy</div>
+  <div class="frow">
+    <div class="field"><label>Nazwa firmy *</label><input id="f-name" type="text" placeholder="np. OSM Jasienica Rosielna" oninput="upd()"></div>
+    <div class="field"><label>NIP</label><input id="f-nip" type="text" placeholder="000-000-00-00"></div>
+  </div>
+  <div class="frow">
+    <div class="field">
+      <label>Liczba pracowników *</label>
+      <select id="f-emp" onchange="upd()">
+        <option value="">— wybierz —</option>
+        <option value="10-49">10–49</option>
+        <option value="50-249">50–249 (średnie)</option>
+        <option value="250+">250+ (duże)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Roczny obrót (orientacyjnie)</label>
+      <select id="f-rev" onchange="upd()">
+        <option value="">— wybierz —</option>
+        <option value="<5m">poniżej 5 mln zł</option>
+        <option value="5-20m">5–20 mln zł</option>
+        <option value="20-50m">20–50 mln zł</option>
+        <option value="50-100m">50–100 mln zł</option>
+        <option value=">100m">powyżej 100 mln zł</option>
+      </select>
+      <div class="field-hint">Potrzebne do obliczenia maksymalnej kary</div>
+    </div>
+  </div>
+  <div class="frow">
+    <div class="field">
+      <label>Sektor działalności *</label>
+      <select id="f-sec" onchange="upd()">
+        <option value="">— wybierz —</option>
+        <option value="mleczarstwo">Mleczarstwo / przetwórstwo mleka</option>
+        <option value="przetworstwo_miesne">Przetwórstwo mięsne / wędliniarstwo</option>
+        <option value="piekarstwo">Piekarstwo / cukiernictwo przemysłowe</option>
+        <option value="produkcja_zywnosci">Produkcja żywności (inne)</option>
+        <option value="hurtownia">Hurtownia / dystrybucja spożywcza</option>
+        <option value="chlodownia">Chłodnia / magazyn spożywczy</option>
+        <option value="inne">Inne — branża spożywcza</option>
+      </select>
+    </div>
+    <div class="field"><label>E-mail do wysyłki raportu *</label><input id="f-email" type="email" placeholder="prezes@firma.pl" oninput="upd()"></div>
+  </div>
+  <div class="field">
+    <label>Domena firmowej strony / e-maila (opcjonalnie)</label>
+    <input id="f-domain" type="text" placeholder="np. osmjasienica.pl">
+    <div class="field-hint">Przeprowadzimy bezpłatny skan techniczny bezpieczeństwa domeny</div>
+  </div>
+</div>
+
+<!-- SKAN DOMENY -->
+<div class="sec-hdr" style="margin-top:12px">
+  <div class="sec-badge sb-c">SKAN</div>
+  <div class="sec-title">Szybki skan techniczny domeny (opcjonalnie)</div>
+</div>
+<div class="scan-card">
+  <h4>Podstawowa weryfikacja widoczności domeny</h4>
+  <p>Sprawdzamy HTTPS i konfigurację SPF. To są dwa podstawowe, publicznie dostępne testy — nie zastępują pełnego audytu technicznego. Wyniki orientacyjne.</p>
+  <div class="scan-row">
+    <input class="scan-input" id="scan-domain" type="text" placeholder="np. osmjasienica.pl">
+    <button class="btn-scan" onclick="runScan()">Skanuj</button>
+  </div>
+  <div class="scan-results" id="scan-results"></div>
+</div>
+
+<!-- BLOK A -->
+<div class="sec-hdr">
+  <div class="sec-badge sb-a">BLOK A</div>
+  <div class="sec-title">Kwalifikacja do UKSC i samoidentyfikacja</div>
+  <div class="sec-score" id="sc-a">0/3</div>
+</div>
+
+<div class="q-card" id="c1">
+  <div class="q-head"><div class="q-num" id="n1">1</div><div class="q-text">Czy firma zatrudnia co najmniej 50 pracowników LUB osiąga roczny obrót powyżej 10 mln EUR (ok. 43 mln zł)?</div></div>
+  <div class="q-meta"><span class="q-law">Rozp. 651/2014/UE — próg MŚP (warunek LUB, nie I)</span><span class="q-tag">Kwalifikacja</span></div>
+  <div class="q-btns"><button class="q-btn" id="q1y" onclick="ans(1,'yes','a')">Tak</button><button class="q-btn" id="q1n" onclick="ans(1,'no','a')">Nie</button></div>
+</div>
+
+<div class="q-card" id="c1b">
+  <div class="q-head"><div class="q-num" id="n1b">1b</div><div class="q-text">Czy firma jest samodzielna — nie należy do grupy kapitałowej, holdingu ani nie ma przedsiębiorstw partnerskich/powiązanych?</div></div>
+  <div class="q-meta"><span class="q-law">FAQ MC — przy grupach kapitałowych łączy się dane wszystkich spółek powiązanych</span><span class="q-tag warn">Nowy wymóg z FAQ</span></div>
+  <div class="q-btns"><button class="q-btn" id="q1by" onclick="ans('1b','yes','a')">Tak, firma samodzielna</button><button class="q-btn" id="q1bn" onclick="ans('1b','no','a')">Nie, jest częścią grupy</button></div>
+</div>
+
+<div class="q-card" id="c2">
+  <div class="q-head"><div class="q-num" id="n2">2</div><div class="q-text">Czy główna działalność obejmuje produkcję, przetwórstwo lub hurtową dystrybucję żywności przeznaczonej do obrotu?</div></div>
+  <div class="q-meta"><span class="q-law">Sekcja VIII Załącznika 2 do UKSC</span><span class="q-tag">Kwalifikacja sektorowa</span></div>
+  <div class="q-btns"><button class="q-btn" id="q2y" onclick="ans(2,'yes','a')">Tak</button><button class="q-btn" id="q2n" onclick="ans(2,'no','a')">Nie</button></div>
+</div>
+
+<div class="q-card" id="c2b">
+  <div class="q-head"><div class="q-num" id="n2b">2b</div><div class="q-text">Czy firma zweryfikowała swoje kody PKD w KRS/CEIDG i sprawdziła ich zgodność z załącznikami 1 i 2 ustawy KSC?</div></div>
+  <div class="q-meta"><span class="q-law">FAQ MC — samoidentyfikacja wymaga analizy PKD</span><span class="q-tag warn">Nowy wymóg z FAQ</span></div>
+  <div class="q-btns"><button class="q-btn" id="q2by" onclick="ans('2b','yes','a')">Tak, zweryfikowano</button><button class="q-btn" id="q2bn" onclick="ans('2b','no','a')">Nie weryfikowano</button></div>
+</div>
+
+<div class="q-card" id="c3">
+  <div class="q-head"><div class="q-num" id="n3">3</div><div class="q-text">Czy firma złożyła wniosek o wpis do Wykazu KSC przez aplikację wykaz-ksc.gov.pl (wymagany podpis elektroniczny)?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 8 UKSC — system S46</span><span class="q-tag warn">Samorejestracja: 7 maj – 3 paź 2026</span></div>
+  <div class="q-btns"><button class="q-btn" id="q3y" onclick="ans(3,'yes','a')">Tak, złożyliśmy</button><button class="q-btn" id="q3n" onclick="ans(3,'no','a')">Jeszcze nie</button></div>
+</div>
+
+<!-- BLOK B -->
+<div class="sec-hdr">
+  <div class="sec-badge sb-b">BLOK B</div>
+  <div class="sec-title">System zarządzania bezpieczeństwem (SZBI)</div>
+  <div class="sec-score" id="sc-b">0/5</div>
+</div>
+
+<div class="q-card" id="c4">
+  <div class="q-head"><div class="q-num" id="n4">4</div><div class="q-text">Czy firma posiada sformalizowaną Politykę Bezpieczeństwa Informacji (PBI) zatwierdzoną przez zarząd?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2</span><span class="q-tag">SZBI · Deadline: 3 kwi 2027</span></div>
+  <div class="q-btns"><button class="q-btn" id="q4y" onclick="ans(4,'yes','b')">Tak, mamy dokument</button><button class="q-btn" id="q4n" onclick="ans(4,'no','b')">Nie mamy</button></div>
+</div>
+
+<div class="q-card" id="c5">
+  <div class="q-head"><div class="q-num" id="n5">5</div><div class="q-text">Czy przeprowadzono formalną analizę ryzyka cyberbezpieczeństwa w ciągu ostatnich 12 miesięcy?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — zarządzanie ryzykiem</span></div>
+  <div class="q-btns"><button class="q-btn" id="q5y" onclick="ans(5,'yes','b')">Tak</button><button class="q-btn" id="q5n" onclick="ans(5,'no','b')">Nie</button></div>
+</div>
+
+<div class="q-card" id="c6">
+  <div class="q-head"><div class="q-num" id="n6">6</div><div class="q-text">Czy istnieje Rejestr Aktywów Informacyjnych (lista systemów IT, serwerów, komputerów, danych firmowych)?</div></div>
+  <div class="q-meta"><span class="q-law">Podstawa analizy ryzyka SZBI</span></div>
+  <div class="q-btns"><button class="q-btn" id="q6y" onclick="ans(6,'yes','b')">Tak</button><button class="q-btn" id="q6n" onclick="ans(6,'no','b')">Nie</button></div>
+</div>
+
+<div class="q-card" id="c7">
+  <div class="q-head"><div class="q-num" id="n7">7</div><div class="q-text">Czy SZBI jest regularnie przeglądany i aktualizowany (co najmniej raz w roku lub po poważnym incydencie)?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — ciągłe doskonalenie</span></div>
+  <div class="q-btns"><button class="q-btn" id="q7y" onclick="ans(7,'yes','b')">Tak</button><button class="q-btn" id="q7n" onclick="ans(7,'no','b')">Nie / Brak SZBI</button></div>
+</div>
+
+<div class="q-card" id="c8">
+  <div class="q-head"><div class="q-num" id="n8">8</div><div class="q-text">Czy firma posiada plan ciągłości działania i odtwarzania po awarii (BCP/DRP) na wypadek poważnego ataku cybernetycznego?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — BCP/DRP</span></div>
+  <div class="q-btns"><button class="q-btn" id="q8y" onclick="ans(8,'yes','b')">Tak, mamy plan</button><button class="q-btn" id="q8n" onclick="ans(8,'no','b')">Nie mamy</button></div>
+</div>
+
+<!-- BLOK C -->
+<div class="sec-hdr">
+  <div class="sec-badge sb-c">BLOK C</div>
+  <div class="sec-title">Zabezpieczenia techniczne</div>
+  <div class="sec-score" id="sc-c">0/6</div>
+</div>
+
+<div class="q-card" id="c9">
+  <div class="q-head"><div class="q-num" id="n9">9</div><div class="q-text">Czy stosowane jest uwierzytelnianie wieloskładnikowe (MFA) do dostępu zdalnego i systemów krytycznych (ERP, e-mail, serwery)?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — kontrola dostępu</span><span class="q-tag warn">Wysokie ryzyko</span></div>
+  <div class="q-btns"><button class="q-btn" id="q9y" onclick="ans(9,'yes','c')">Tak</button><button class="q-btn" id="q9n" onclick="ans(9,'no','c')">Nie</button></div>
+</div>
+
+<div class="q-card" id="c10">
+  <div class="q-head"><div class="q-num" id="n10">10</div><div class="q-text">Czy istnieje udokumentowana procedura tworzenia i testowania kopii zapasowych kluczowych danych?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — ciągłość działania</span></div>
+  <div class="q-btns"><button class="q-btn" id="q10y" onclick="ans(10,'yes','c')">Tak, backup z testami</button><button class="q-btn" id="q10n" onclick="ans(10,'no','c')">Nie / Brak testów</button></div>
+</div>
+
+<div class="q-card" id="c11">
+  <div class="q-head"><div class="q-num" id="n11">11</div><div class="q-text">Czy dane produkcyjne i firmowe są szyfrowane w spoczynku i podczas transmisji (HTTPS, VPN, szyfrowanie dysków)?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — szyfrowanie</span></div>
+  <div class="q-btns"><button class="q-btn" id="q11y" onclick="ans(11,'yes','c')">Tak</button><button class="q-btn" id="q11n" onclick="ans(11,'no','c')">Nie / Nie wiem</button></div>
+</div>
+
+<div class="q-card" id="c12">
+  <div class="q-head"><div class="q-num" id="n12">12</div><div class="q-text">Czy stosowane jest zarządzanie aktualizacjami — regularne aktualizacje oprogramowania i systemów (patch management)?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — zarządzanie podatnościami</span></div>
+  <div class="q-btns"><button class="q-btn" id="q12y" onclick="ans(12,'yes','c')">Tak, regularnie</button><button class="q-btn" id="q12n" onclick="ans(12,'no','c')">Nie / Sporadycznie</button></div>
+</div>
+
+<div class="q-card" id="c13">
+  <div class="q-head"><div class="q-num" id="n13">13</div><div class="q-text">Czy sieć wewnętrzna jest podzielona na segmenty (np. oddzielna sieć produkcyjna od biurowej i gościnnej)?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — bezpieczeństwo sieci</span></div>
+  <div class="q-btns"><button class="q-btn" id="q13y" onclick="ans(13,'yes','c')">Tak</button><button class="q-btn" id="q13n" onclick="ans(13,'no','c')">Nie / Nie wiem</button></div>
+</div>
+
+<div class="q-card" id="c14">
+  <div class="q-head"><div class="q-num" id="n14">14</div><div class="q-text">Czy monitorowane są logi systemowe i alerty bezpieczeństwa (np. próby nieautoryzowanego dostępu)?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — monitorowanie</span></div>
+  <div class="q-btns"><button class="q-btn" id="q14y" onclick="ans(14,'yes','c')">Tak</button><button class="q-btn" id="q14n" onclick="ans(14,'no','c')">Nie</button></div>
+</div>
+
+<!-- BLOK D -->
+<div class="sec-hdr">
+  <div class="sec-badge sb-d">BLOK D</div>
+  <div class="sec-title">Incydenty, S46 i łańcuch dostaw</div>
+  <div class="sec-score" id="sc-d">0/5</div>
+</div>
+
+<div class="q-card" id="c15">
+  <div class="q-head"><div class="q-num" id="n15">15</div><div class="q-text">Czy istnieje udokumentowana procedura zgłaszania incydentów cyberbezpieczeństwa, która wyznacza osobę odpowiedzialną i terminy?</div></div>
+  <div class="q-meta"><span class="q-law">UKSC — zgłoszenie CSIRT: 24h / 72h / 1 miesiąc</span><span class="q-tag warn">Wysokie ryzyko</span></div>
+  <div class="q-btns"><button class="q-btn" id="q15y" onclick="ans(15,'yes','d')">Tak</button><button class="q-btn" id="q15n" onclick="ans(15,'no','d')">Nie</button></div>
+</div>
+
+<div class="q-card" id="c15b">
+  <div class="q-head"><div class="q-num" id="n15b">15b</div><div class="q-text">Czy firma wie o Systemie S46 i jest przygotowana do korzystania z niego do elektronicznego raportowania incydentów (dostępny od 12 czerwca 2026)?</div></div>
+  <div class="q-meta"><span class="q-law">Art. UKSC — System S46 · od 12 cze 2026</span><span class="q-tag warn">Nowy obowiązek z FAQ MC</span></div>
+  <div class="q-btns"><button class="q-btn" id="q15by" onclick="ans('15b','yes','d')">Tak, znamy S46</button><button class="q-btn" id="q15bn" onclick="ans('15b','no','d')">Nie słyszeliśmy</button></div>
+</div>
+
+<div class="q-card" id="c16">
+  <div class="q-head"><div class="q-num" id="n16">16</div><div class="q-text">Czy firma ćwiczyła lub testowała procedurę reagowania na incydent (np. symulacja ataku ransomware) w ciągu ostatnich 2 lat?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — testy i ćwiczenia</span></div>
+  <div class="q-btns"><button class="q-btn" id="q16y" onclick="ans(16,'yes','d')">Tak</button><button class="q-btn" id="q16n" onclick="ans(16,'no','d')">Nie</button></div>
+</div>
+
+<div class="q-card" id="c17">
+  <div class="q-head"><div class="q-num" id="n17">17</div><div class="q-text">Czy weryfikowane jest bezpieczeństwo kluczowych dostawców IT i oprogramowania (np. dostawca ERP, systemu wagowego)?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — bezpieczeństwo łańcucha dostaw</span></div>
+  <div class="q-btns"><button class="q-btn" id="q17y" onclick="ans(17,'yes','d')">Tak</button><button class="q-btn" id="q17n" onclick="ans(17,'no','d')">Nie</button></div>
+</div>
+
+<div class="q-card" id="c18">
+  <div class="q-head"><div class="q-num" id="n18">18</div><div class="q-text">Czy umowy z kluczowymi dostawcami IT zawierają klauzule dotyczące bezpieczeństwa i zgłaszania incydentów?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — bezpieczeństwo łańcucha dostaw</span></div>
+  <div class="q-btns"><button class="q-btn" id="q18y" onclick="ans(18,'yes','d')">Tak</button><button class="q-btn" id="q18n" onclick="ans(18,'no','d')">Nie / Nie wiem</button></div>
+</div>
+
+<!-- BLOK E -->
+<div class="sec-hdr">
+  <div class="sec-badge sb-e">BLOK E</div>
+  <div class="sec-title">Organizacja, odpowiedzialność i świadomość</div>
+  <div class="sec-score" id="sc-e">0/2</div>
+</div>
+
+<div class="q-card" id="c19">
+  <div class="q-head"><div class="q-num" id="n19">19</div><div class="q-text">Czy zarząd wyznaczył konkretną osobę odpowiedzialną za cyberbezpieczeństwo z formalnym zakresem obowiązków?</div></div>
+  <div class="q-meta"><span class="q-law">UKSC — odpowiedzialność zarządu</span><span class="q-tag warn">Odpowiedzialność osobista</span></div>
+  <div class="q-btns"><button class="q-btn" id="q19y" onclick="ans(19,'yes','e')">Tak</button><button class="q-btn" id="q19n" onclick="ans(19,'no','e')">Nie</button></div>
+</div>
+
+<div class="q-card" id="c20">
+  <div class="q-head"><div class="q-num" id="n20">20</div><div class="q-text">Czy pracownicy (w tym zarząd) przeszli szkolenie z podstaw cyberbezpieczeństwa i phishingu w ciągu ostatniego roku?</div></div>
+  <div class="q-meta"><span class="q-law">Art. 21 NIS2 — świadomość bezpieczeństwa</span></div>
+  <div class="q-btns"><button class="q-btn" id="q20y" onclick="ans(20,'yes','e')">Tak</button><button class="q-btn" id="q20n" onclick="ans(20,'no','e')">Nie</button></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+  <div style="font-size:13px;font-weight:600;margin-bottom:14px;color:var(--text)">Bieżący wynik zgodności</div>
+  <div class="dash-top">
+    <div class="dash-ring">
+      <div class="ring-wrap">
+        <svg width="108" height="108" viewBox="0 0 108 108">
+          <circle class="ring-bg" cx="54" cy="54" r="46"/>
+          <circle class="ring-fill" id="ring" cx="54" cy="54" r="46" stroke-dasharray="289" stroke-dashoffset="289"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-num" id="ring-num">0%</div>
+          <div class="ring-sub">zgodności</div>
+        </div>
+      </div>
+      <div class="ring-grade" id="ring-grade">—</div>
+    </div>
+    <div class="dash-blocks">
+      <div class="blk"><div class="blk-top"><span class="blk-name">A. Kwalifikacja</span><span class="blk-pct" id="bp-a" style="color:var(--text3)">—</span></div><div class="blk-bar"><div class="blk-fill" id="bf-a" style="width:0%;background:var(--blue-m)"></div></div></div>
+      <div class="blk"><div class="blk-top"><span class="blk-name">B. SZBI</span><span class="blk-pct" id="bp-b" style="color:var(--text3)">—</span></div><div class="blk-bar"><div class="blk-fill" id="bf-b" style="width:0%;background:var(--amber-m)"></div></div></div>
+      <div class="blk"><div class="blk-top"><span class="blk-name">C. Techniczne</span><span class="blk-pct" id="bp-c" style="color:var(--text3)">—</span></div><div class="blk-bar"><div class="blk-fill" id="bf-c" style="width:0%;background:var(--purple)"></div></div></div>
+      <div class="blk"><div class="blk-top"><span class="blk-name">D. Incydenty</span><span class="blk-pct" id="bp-d" style="color:var(--text3)">—</span></div><div class="blk-bar"><div class="blk-fill" id="bf-d" style="width:0%;background:var(--red-m)"></div></div></div>
+      <div class="blk"><div class="blk-top"><span class="blk-name">E. Organizacja</span><span class="blk-pct" id="bp-e" style="color:var(--text3)">—</span></div><div class="blk-bar"><div class="blk-fill" id="bf-e" style="width:0%;background:var(--teal-m)"></div></div></div>
+    </div>
+  </div>
+  <div class="gap-grid" id="gap-grid"></div>
+</div>
+
+<!-- KOSZTY -->
+<div class="cost-box" id="cost-box">
+  <div class="cost-title">Szacowany koszt wdrożenia zgodności z UKSC</div>
+  <div class="cost-grid">
+    <div class="cost-card cc-blue"><div class="cost-val" id="cv-total">—</div><div class="cost-lbl">Łączny koszt wdrożenia</div></div>
+    <div class="cost-card cc-red"><div class="cost-val" id="cv-fine">—</div><div class="cost-lbl">Maks. kara za brak zgodności</div></div>
+    <div class="cost-card cc-green"><div class="cost-val" id="cv-saving">—</div><div class="cost-lbl">Opłacalność inwestycji</div></div>
+  </div>
+  <div class="cost-items" id="cost-items"></div>
+  <div class="cost-note">* Szacunki orientacyjne dla branży spożywczej. Rzeczywiste koszty zależą od złożoności środowiska IT i wybranego wykonawcy.</div>
+</div>
+
+<!-- TIMELINE -->
+<div class="tl-box" id="tl-box">
+  <div class="tl-title">Harmonogram wdrożenia dla Twojej firmy</div>
+  <div class="tl-grid" id="tl-grid"></div>
+</div>
+
+<!-- CTA -->
+<div class="cta-box" id="cta">
+  <h3>Wygeneruj pełny raport i szablony dokumentów</h3>
+  <p>Spersonalizowany raport luk zgodności z UKSC, harmonogram działań z datami i 5 gotowych szablonów dokumentów wymaganych przez ustawę — wszystko dostosowane do Twojego sektora i skali działalności.</p>
+  <button class="btn-gen" onclick="genReport()">Generuj raport i dokumenty KSC →</button>
+</div>
+
+<!-- LOADING -->
+<div class="loading-box" id="loading">
+  <div class="spinner"></div>
+  <div style="font-size:14px;font-weight:600;margin-bottom:12px">Przygotowujemy Twój raport...</div>
+  <div id="lsteps">
+    <div class="lstep active" id="ls1">Weryfikacja kwalifikacji i statusu podmiotu...</div>
+    <div class="lstep" id="ls2">Analiza 20 obszarów zgodności z UKSC i FAQ MC...</div>
+    <div class="lstep" id="ls3">Generowanie harmonogramu i kalkulacji kosztów...</div>
+    <div class="lstep" id="ls4">Tworzenie spersonalizowanych szablonów dokumentów...</div>
+    <div class="lstep" id="ls5">Finalizacja raportu i rekomendacji...</div>
+  </div>
+</div>
+
+<div class="err-box" id="err"></div>
+
+<!-- RAPORT -->
+<div class="rbox" id="rbox">
+  <div class="r-hdr">
+    <h2>Raport zgodności KSC / NIS2</h2>
+    <div class="r-hdr-sub">Analiza luk i plan wdrożenia · Branża spożywcza · Ustawa z 3 kwietnia 2026 r.</div>
+    <div class="r-meta">
+      <div class="rm"><strong id="m-firma">—</strong>Firma</div>
+      <div class="rm"><strong id="m-nip">—</strong>NIP</div>
+      <div class="rm"><strong id="m-data">—</strong>Data raportu</div>
+      <div class="rm"><strong id="m-sec">—</strong>Sektor</div>
+      <div class="rm"><strong id="m-status">—</strong>Status zgodności</div>
+    </div>
+  </div>
+  <div class="r-body" id="r-body"></div>
+
+  <!-- SZABLONY -->
+  <div class="tpl-sec" id="tpl-sec" style="display:none">
+    <div style="height:1px;background:var(--gray-b);margin-bottom:18px"></div>
+    <div class="tpl-title">Gotowe szablony dokumentów dla Twojej firmy</div>
+    <div class="tpl-sub">Każdy dokument generowany jest na podstawie Twoich odpowiedzi i dostosowany do sektora. Skopiuj, uzupełnij nagłówek firmowy i podpisz.</div>
+    <div class="tpl-grid">
+      <button class="tpl-btn" onclick="genTpl('polityka')"><strong>Polityka Bezpieczeństwa Informacji</strong><span>Wymagana · deadline 3 kwi 2027</span></button>
+      <button class="tpl-btn" onclick="genTpl('incydenty')"><strong>Procedura Zgłaszania Incydentów</strong><span>CSIRT + System S46 · do druku</span></button>
+      <button class="tpl-btn" onclick="genTpl('rejestr')"><strong>Rejestr Aktywów Informacyjnych</strong><span>Branżowe przykłady · do Excel</span></button>
+      <button class="tpl-btn" onclick="genTpl('ryzyko')"><strong>Matryca Analizy Ryzyka</strong><span>Top 12 zagrożeń dla zakładu</span></button>
+      <button class="tpl-btn" onclick="genTpl('szkolenie')"><strong>Program Szkolenia Pracowników</strong><span>Konspekt + test wiedzy</span></button>
+    </div>
+    <div class="tpl-loading" id="tpl-loading"></div>
+    <div class="tpl-result" id="tpl-result">
+      <div class="tpl-result-title" id="tpl-rtitle"></div>
+      <div class="tpl-result-body" id="tpl-rbody"></div>
+      <div class="tpl-actions">
+        <button class="btn-sm primary" onclick="copyTpl()">Kopiuj dokument</button>
+        <button class="btn-sm" onclick="document.getElementById('tpl-result').style.display='none'">Zamknij</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="upsell">
+    <div class="upsell-text">
+      <h4>Monitoring KSC — bądź zawsze gotowy na kontrolę</h4>
+      <p>Miesięczna aktualizacja o nowych obowiązkach, terminach i zmianach w przepisach. Jedno powiadomienie — zero zaskoczeń.</p>
+    </div>
+    <button class="btn-upsell" onclick="alert('Dziękujemy! Skontaktujemy się w ciągu 24 godzin.')">Zamów monitoring — 299 zł/mc</button>
+  </div>
+
+  <div class="disclaimer">Raport sporządzono na podstawie deklaracji własnych firmy i ma charakter informacyjno-analityczny. <strong>Nie stanowi porady prawnej ani wiążącej interpretacji przepisów UKSC.</strong> FAQ Ministerstwa Cyfryzacji, na którym oparty jest raport, jest dokumentem pomocniczym i interpretacyjnym — nie ma mocy prawnej. Ostateczna kwalifikacja statusu podmiotu wymaga samodzielnej analizy przez firmę lub konsultacji z radcą prawnym specjalizującym się w KSC/NIS2.</div>
+
+  <div class="r-actions">
+    <button class="btn-act primary" onclick="window.print()">Drukuj / Zapisz PDF</button>
+    <button class="btn-act" onclick="resetAll()">Nowy audyt</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+var API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000'
+  : window.location.origin;
+var answers = {};
+var N = 20;
+var fd = {};
+
+var SEC_LABELS = {
+  mleczarstwo:'Mleczarstwo',przetworstwo_miesne:'Przetwórstwo mięsne',
+  piekarstwo:'Piekarstwo przemysłowe',produkcja_zywnosci:'Produkcja żywności',
+  hurtownia:'Dystrybucja spożywcza',chlodownia:'Chłodnictwo',inne:'Branża spożywcza'
+};
+
+var Q_BLOCK = {
+  1:'a','1b':'a',2:'a','2b':'a',3:'a',
+  4:'b',5:'b',6:'b',7:'b',8:'b',
+  9:'c',10:'c',11:'c',12:'c',13:'c',14:'c',
+  15:'d','15b':'d',16:'d',17:'d',18:'d',
+  19:'e',20:'e'
+};
+
+var BLOCK_TOTAL = {a:5,b:5,c:6,d:5,e:2};
+
+var GAP_DATA = {
+  '1b':{title:'Firma należy do grupy kapitałowej — wymagana konsolidacja danych', desc:'FAQ MC: dane zatrudnienia i obrotu sumuje się ze spółkami powiązanymi — może zmienić kwalifikację',sev:'crit'},
+  '2b':{title:'Brak weryfikacji kodów PKD vs. załączniki KSC',    desc:'FAQ MC: kwalifikacja wymaga analizy PKD i faktycznej działalności',sev:'crit'},
+  3:  {title:'Brak rejestracji w Wykazie KSC (wykaz-ksc.gov.pl)',desc:'Okno: 7 maj – 3 paź 2026 · wymagany podpis elektroniczny',         sev:'crit'},
+  4:  {title:'Brak Polityki Bezpieczeństwa Informacji',           desc:'Wymagana przez UKSC · deadline 3 kwi 2027',                         sev:'crit'},
+  5:  {title:'Brak analizy ryzyka cyberbezpieczeństwa',           desc:'Fundament całego SZBI — bez niej nie można wdrożyć UKSC',           sev:'crit'},
+  6:  {title:'Brak Rejestru Aktywów Informacyjnych',              desc:'Niezbędny do analizy ryzyka i przyszłego audytu',                   sev:'high'},
+  8:  {title:'Brak planu ciągłości działania (BCP/DRP)',          desc:'Atak ransomware bez BCP = zatrzymanie całej produkcji',             sev:'high'},
+  9:  {title:'Brak uwierzytelniania wieloskładnikowego (MFA)',     desc:'Najczęstszy punkt wejścia atakujących w sektory przemysłowe',       sev:'crit'},
+  10: {title:'Brak procedury backup i regularnych testów',        desc:'Backup bez testów jest bezużyteczny przy ataku ransomware',         sev:'high'},
+  11: {title:'Brak szyfrowania danych',                           desc:'Wymagane przez NIS2 dla wszystkich danych firmowych i transmisji',  sev:'high'},
+  12: {title:'Brak zarządzania aktualizacjami (patch)',           desc:'Niezaktualizowane systemy to otwarta furtka dla atakujących',       sev:'high'},
+  15: {title:'Brak procedury zgłaszania incydentów do CSIRT',     desc:'Kara za niezgłoszenie incydentu w 24h/72h',                        sev:'crit'},
+  '15b':{title:'Brak przygotowania do Systemu S46',              desc:'Nowy obowiązek z FAQ MC — raportowanie elektroniczne od cze 2026',  sev:'high'},
+  17: {title:'Brak weryfikacji bezpieczeństwa dostawców IT',      desc:'NIS2 wymaga oceny ryzyka całego łańcucha dostaw ICT',               sev:'med'},
+  19: {title:'Brak wyznaczonej osoby ds. cyberbezpieczeństwa',    desc:'Zarząd odpowiada osobiście — brak formalnego wyznaczenia to błąd', sev:'crit'},
+  20: {title:'Brak szkoleń pracowników i zarządu',                desc:'90% incydentów zaczyna się od phishingu na pracowniku',            sev:'high'},
+};
+
+var COST_DATA = {
+  4:   {n:'Polityka Bezpieczeństwa + SZBI',   lo:2000,  hi:6000},
+  5:   {n:'Analiza ryzyka',                    lo:3000,  hi:8000},
+  6:   {n:'Rejestr Aktywów IT',               lo:500,   hi:2000},
+  8:   {n:'Plan BCP/DRP',                     lo:2000,  hi:5000},
+  9:   {n:'Wdrożenie MFA',                    lo:500,   hi:2000},
+  10:  {n:'Procedura backup + testy',         lo:500,   hi:2000},
+  11:  {n:'Szyfrowanie danych',               lo:1000,  hi:4000},
+  12:  {n:'Patch management',                 lo:500,   hi:1500},
+  15:  {n:'Procedura incydentów + S46',       lo:1000,  hi:3000},
+  17:  {n:'Audyt dostawców IT',               lo:1000,  hi:3000},
+  19:  {n:'Wyznaczenie / szkolenie CISO',     lo:2000,  hi:5000},
+  20:  {n:'Szkolenia pracowników',            lo:1500,  hi:4000},
+};
+
+function ans(n, v, block) {
+  answers[n] = v;
+  var ys = document.getElementById('q'+n+'y');
+  var ns = document.getElementById('q'+n+'n');
+  var nm = document.getElementById('n'+n);
+  var cd = document.getElementById('c'+n);
+  if(ys) ys.className = 'q-btn'+(v==='yes'?' yes':'');
+  if(ns) ns.className = 'q-btn'+(v==='no' ?' no' :'');
+  if(nm) nm.className = 'q-num '+(v==='yes'?'dy':'dn');
+  if(cd) cd.className = 'q-card '+(v==='yes'?'ay':'an');
+  upd();
+}
+
+function upd() {
+  var keys = Object.keys(answers);
+  var total = keys.length;
+  var yesN  = keys.filter(k => answers[k]==='yes').length;
+  var pct   = total > 0 ? Math.round(yesN/total*100) : 0;
+
+  document.getElementById('prog').style.width = Math.round(total/N*100)+'%';
+  document.getElementById('prog-label').textContent = total+' z '+N+' pytań uzupełnionych';
+  if(total>0) document.getElementById('prog-score').textContent = pct+'% zgodności';
+
+  // bloki
+  var bY={a:0,b:0,c:0,d:0,e:0}, bT={a:0,b:0,c:0,d:0,e:0};
+  keys.forEach(function(k){
+    var b=Q_BLOCK[k]; if(!b) return;
+    bT[b]++; if(answers[k]==='yes') bY[b]++;
+  });
+  ['a','b','c','d','e'].forEach(function(b){
+    var p = bT[b]>0 ? Math.round(bY[b]/bT[b]*100) : null;
+    var pEl=document.getElementById('bp-'+b), fEl=document.getElementById('bf-'+b);
+    var tot=BLOCK_TOTAL[b]||'?';
+    document.getElementById('sc-'+b).textContent=bY[b]+'/'+tot;
+    if(p!==null){
+      pEl.textContent=p+'%';
+      pEl.style.color=p>=70?'var(--green)':p>=40?'var(--amber)':'var(--red)';
+      fEl.style.width=p+'%';
+      fEl.style.background=p>=70?'var(--green-m)':p>=40?'var(--amber-m)':'var(--red-m)';
+    }
+  });
+
+  if(total>=3){ document.getElementById('dashboard').style.display='block'; updateRing(pct); updateGaps(); }
+  if(total>=8){ document.getElementById('cost-box').style.display='block'; document.getElementById('tl-box').style.display='block'; updateCosts(); updateTL(); }
+
+  var ok = document.getElementById('f-name').value.trim() &&
+           document.getElementById('f-sec').value &&
+           document.getElementById('f-email').value.includes('@');
+  document.getElementById('cta').style.display=(total>=15&&ok)?'block':'none';
+  setStepper(total>=15&&ok?3:total>=3?2:1);
+}
+
+function setStepper(a){
+  [1,2,3].forEach(function(i){
+    var el=document.getElementById('step'+i);
+    el.className='step-item'+(i<a?' done':i===a?' active':'');
+  });
+}
+
+function updateRing(pct){
+  var c=289, off=c-(c*pct/100);
+  var r=document.getElementById('ring');
+  r.style.strokeDashoffset=off;
+  r.style.stroke=pct>=70?'var(--green-m)':pct>=40?'var(--amber-m)':'var(--red-m)';
+  document.getElementById('ring-num').textContent=pct+'%';
+  document.getElementById('ring-num').style.color=pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)';
+  var g=pct>=70?'Dobra gotowość':pct>=40?'Wymaga działań':'Krytyczne braki';
+  document.getElementById('ring-grade').textContent=g;
+  document.getElementById('ring-grade').style.color=pct>=70?'var(--green)':pct>=40?'var(--amber)':'var(--red)';
+}
+
+function updateGaps(){
+  var items=Object.entries(answers).filter(function(e){return e[1]==='no';}).map(function(e){var k=e[0];return Object.assign({k:k},GAP_DATA[k]||{});}).filter(function(x){return x.title;});
+  items.sort(function(a,b){return ['crit','high','med'].indexOf(a.sev)-['crit','high','med'].indexOf(b.sev);});
+  var lbl={crit:'Krytyczne',high:'Wysokie',med:'Średnie'};
+  var html=items.slice(0,7).map(function(g){
+    return '<div class="gap-item '+g.sev+'"><span class="gap-badge '+g.sev+'">'+lbl[g.sev]+'</span><div><div class="gap-title">'+g.title+'</div><div class="gap-desc">'+g.desc+'</div></div></div>';
+  }).join('');
+  document.getElementById('gap-grid').innerHTML=html||'<div style="font-size:12px;color:var(--green);padding:8px">Brak wykrytych luk — dobra robota!</div>';
+}
+
+function fmt(n){return n.toLocaleString('pl-PL');}
+
+function updateCosts(){
+  var lo=0,hi=0,items=[];
+  Object.entries(answers).forEach(function([k,v]){
+    if(v==='no'&&COST_DATA[k]){lo+=COST_DATA[k].lo;hi+=COST_DATA[k].hi;items.push(COST_DATA[k]);}
+  });
+  var fineMap={'<5m':'350 000 zł','5-20m':'do 1,4 mln zł','20-50m':'do 3,5 mln zł','50-100m':'do 7 mln zł','>100m':'do 7 mln EUR'};
+  var fine=fineMap[document.getElementById('f-rev').value]||'do 7 mln EUR';
+  document.getElementById('cv-total').textContent=lo>0?fmt(lo)+'–'+fmt(hi)+' zł':'0 zł';
+  document.getElementById('cv-fine').textContent=fine;
+  var fineNumMap={'<5m':350000,'5-20m':700000,'20-50m':3500000,'50-100m':7000000,'>100m':30000000};
+  var fineN=fineNumMap[document.getElementById('f-rev').value]||700000;
+  var avgCost=lo>0?Math.round((lo+hi)/2):1;
+  var ratio=lo>0&&avgCost>0?Math.round(fineN/avgCost):0;
+  document.getElementById('cv-saving').textContent=ratio>1?ratio+'x taniej niż kara':lo>0?'Opłacalna':'brak zagrożenia';
+  document.getElementById('cost-items').innerHTML=items.slice(0,7).map(function(c){
+    return '<div class="cost-item"><span class="cost-item-name">'+c.n+'</span><span class="cost-item-val">'+fmt(c.lo)+'–'+fmt(c.hi)+' zł</span></div>';
+  }).join('');
+}
+
+var TL_TASKS = {
+  '2b':{p:1,t:'Zweryfikuj kody PKD w KRS vs. załączniki KSC'},
+  3:   {p:1,t:'Zarejestruj się w wykaz-ksc.gov.pl (konieczny e-podpis)'},
+  19:  {p:1,t:'Wyznacz osobę ds. cyberbezpieczeństwa (uchwała zarządu)'},
+  9:   {p:1,t:'Wdróż MFA w ERP, e-mailu i dostępie zdalnym'},
+  15:  {p:1,t:'Stwórz procedurę zgłaszania incydentów do CSIRT'},
+  '15b':{p:1,t:'Zapoznaj się z Systemem S46 (cyber.gov.pl)'},
+  4:   {p:2,t:'Opracuj i podpisz Politykę Bezpieczeństwa Informacji'},
+  5:   {p:2,t:'Przeprowadź formalną analizę ryzyka cyberbezpieczeństwa'},
+  6:   {p:2,t:'Zbuduj Rejestr Aktywów Informacyjnych'},
+  8:   {p:2,t:'Opracuj plan ciągłości działania (BCP/DRP)'},
+  10:  {p:2,t:'Wdróż procedurę backup z regularnymi testami odtwarzania'},
+  20:  {p:2,t:'Przeprowadź szkolenia pracowników z cyberbezpieczeństwa'},
+  11:  {p:3,t:'Wdróż szyfrowanie danych i dysków firmowych'},
+  12:  {p:3,t:'Uruchom zarządzanie aktualizacjami (patch management)'},
+  13:  {p:3,t:'Przeprowadź segmentację sieci IT/OT'},
+  17:  {p:3,t:'Zaudytuj bezpieczeństwo kluczowych dostawców IT'},
+  16:  {p:3,t:'Zaplanuj ćwiczenia reagowania na incydenty'},
+};
+
+function updateTL(){
+  var p1=[],p2=[],p3=[];
+  Object.entries(answers).forEach(function([k,v]){
+    if(v==='no'&&TL_TASKS[k]){
+      var t=TL_TASKS[k];
+      if(t.p===1)p1.push(t.t); else if(t.p===2)p2.push(t.t); else p3.push(t.t);
+    }
+  });
+  if(!p1.length)p1=['Weryfikacja statusu podmiotu KSC'];
+  if(!p2.length)p2=['Przegląd i aktualizacja dokumentacji SZBI'];
+  if(!p3.length)p3=['Przygotowanie do zewnętrznego audytu'];
+  function ph(tasks,cls,dead){
+    return '<div class="tl-phase tl-p'+cls+'"><div class="tl-hdr">FAZA '+cls+'</div><div class="tl-body">'+
+      tasks.slice(0,4).map(function(t){return '<div class="tl-task">'+t+'</div>';}).join('')+
+      '</div><div class="tl-deadline">'+dead+'</div></div>';
+  }
+  document.getElementById('tl-grid').innerHTML=ph(p1,'1','do 3 paź 2026')+ph(p2,'2','do 3 kwi 2027')+ph(p3,'3','do 3 kwi 2028');
+}
+
+async function runScan(){
+  var d=document.getElementById('scan-domain').value.trim().replace(/^https?:\/\//,'');
+  if(!d)return;
+  var btn=document.querySelector('.btn-scan');
+  btn.textContent='Skanuję...';btn.disabled=true;
+  document.getElementById('scan-results').innerHTML='';
+  try{
+    var r=await fetch(API+'/scan-domain',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({domain:d})});
+    var data=await r.json();
+    if(data.results){
+      var icons={ok:'✓',error:'✗',warning:'!',info:'i'};
+      document.getElementById('scan-results').innerHTML=data.results.checks.map(function(c){
+        return '<div class="scan-item si-'+c.status+'"><div class="si-icon">'+icons[c.status]+'</div><div><div class="si-name">'+c.name+'</div><div class="si-detail">'+c.detail+'</div></div></div>';
+      }).join('');
+    }
+  }catch(e){
+    document.getElementById('scan-results').innerHTML=
+      '<div class="scan-item si-info"><div class="si-icon">i</div><div>'+
+      '<div class="si-name">Skan niedostępny</div>'+
+      '<div class="si-detail">Serwer nie jest uruchomiony lub domena nieprawidłowa. Skan techniczny wymaga działającego backendu (npm start).</div>'+
+      '</div></div>';
+  }
+  btn.textContent='Skanuj';btn.disabled=false;
+}
+
+async function genReport(){
+  fd={
+    firma:   document.getElementById('f-name').value,
+    nip:     document.getElementById('f-nip').value,
+    email:   document.getElementById('f-email').value,
+    workers: document.getElementById('f-emp').value,
+    revenue: document.getElementById('f-rev').value,
+    domain:  document.getElementById('f-domain').value,
+    sector:  document.getElementById('f-sec').value,
+    answers: answers,
+    score:   Math.round(Object.values(answers).filter(v=>v==='yes').length/Math.max(Object.keys(answers).length,1)*100)
+  };
+  document.getElementById('cta').style.display='none';
+  document.getElementById('loading').style.display='block';
+  document.getElementById('err').style.display='none';
+  document.getElementById('rbox').style.display='none';
+  var si=0,steps=['ls1','ls2','ls3','ls4','ls5'];
+  var t=setInterval(function(){
+    if(si>0)document.getElementById(steps[si-1]).className='lstep done';
+    if(si<steps.length)document.getElementById(steps[si++]).className='lstep active';
+  },2200);
+  try{
+    var r=await fetch(API+'/generate-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(fd)});
+    clearInterval(t);
+    if(!r.ok){var e=await r.json();throw new Error(e.error||'Błąd serwera');}
+    var d=await r.json();
+    renderReport(d.report);
+  }catch(e){
+    clearInterval(t);
+    document.getElementById('loading').style.display='none';
+    document.getElementById('err').textContent='Błąd: '+e.message;
+    document.getElementById('err').style.display='block';
+    document.getElementById('cta').style.display='block';
+  }
+}
+
+function renderReport(text){
+  document.getElementById('loading').style.display='none';
+  var hasNie=Object.values(answers).filter(v=>v==='no').length;
+  var sc=hasNie>=5?'sp-danger':hasNie>=2?'sp-warning':'sp-ok';
+  var sl=hasNie>=5?'Krytyczne braki ('+hasNie+' luk)':hasNie>=2?'Wymaga działań ('+hasNie+' luk)':'Dobra gotowość';
+  document.getElementById('m-firma').textContent=fd.firma;
+  document.getElementById('m-nip').textContent=fd.nip||'—';
+  document.getElementById('m-data').textContent=new Date().toLocaleDateString('pl-PL');
+  document.getElementById('m-sec').textContent=SEC_LABELS[fd.sector]||'Spożywczy';
+  document.getElementById('m-status').innerHTML='<span class="status-pill '+sc+'">'+sl+'</span>';
+  var sections=text.split(/SEKCJA:\s*/g).filter(s=>s.trim());
+  var html='<span class="status-pill '+sc+'">'+sl+'</span> <span style="font-size:11px;color:var(--text2);margin-left:6px">Wynik: '+(100-Math.round(hasNie/20*100))+'% zgodności</span>';
+  sections.forEach(function(s){
+    var nl=s.indexOf('\n');
+    var title=s.slice(0,nl).trim();
+    var body=s.slice(nl).trim();
+    var bhtml=body.split('\n\n').map(function(p){return p.trim()?'<p>'+p.trim()+'</p>':'';}).join('');
+    html+='<div class="r-sec"><h3>'+title+'</h3><div class="r-content">'+bhtml+'</div></div>';
+  });
+  document.getElementById('r-body').innerHTML=html;
+  document.getElementById('tpl-sec').style.display='block';
+  document.getElementById('rbox').style.display='block';
+  document.getElementById('rbox').scrollIntoView({behavior:'smooth'});
+  setStepper(3);
+}
+
+var TPL_TITLES={polityka:'Polityka Bezpieczeństwa Informacji',incydenty:'Procedura Zgłaszania Incydentów',rejestr:'Rejestr Aktywów Informacyjnych',ryzyko:'Matryca Analizy Ryzyka',szkolenie:'Program Szkolenia Pracowników'};
+
+async function genTpl(type){
+  document.getElementById('tpl-loading').style.display='block';
+  document.getElementById('tpl-loading').textContent='Generuję: '+TPL_TITLES[type]+'...';
+  document.getElementById('tpl-result').style.display='none';
+  try{
+    var r=await fetch(API+'/generate-template',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firma:fd.firma,sector:fd.sector,workers:fd.workers,templateType:type})});
+    if(!r.ok)throw new Error('Błąd serwera');
+    var d=await r.json();
+    document.getElementById('tpl-loading').style.display='none';
+    document.getElementById('tpl-rtitle').textContent=TPL_TITLES[type]+' — '+fd.firma;
+    document.getElementById('tpl-rbody').textContent=d.document;
+    document.getElementById('tpl-result').style.display='block';
+    document.getElementById('tpl-result').scrollIntoView({behavior:'smooth'});
+  }catch(e){
+    document.getElementById('tpl-loading').textContent='Błąd: '+e.message;
+  }
+}
+
+function copyTpl(){
+  navigator.clipboard.writeText(document.getElementById('tpl-rbody').textContent);
+  var btn=document.querySelector('.tpl-actions .btn-sm.primary');
+  btn.textContent='Skopiowano!';
+  setTimeout(function(){btn.textContent='Kopiuj dokument';},2000);
+}
+
+function resetAll(){
+  answers={};fd={};
+  var all=['1','1b','2','2b','3','4','5','6','7','8','9','10','11','12','13','14','15','15b','16','17','18','19','20'];
+  all.forEach(function(k){
+    var y=document.getElementById('q'+k+'y'),n=document.getElementById('q'+k+'n'),nm=document.getElementById('n'+k),c=document.getElementById('c'+k);
+    if(y)y.className='q-btn';if(n)n.className='q-btn';if(nm)nm.className='q-num';if(c)c.className='q-card';
+  });
+  ['f-name','f-nip','f-email','f-domain'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  ['f-emp','f-rev','f-sec'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('prog').style.width='0%';
+  document.getElementById('prog-label').textContent='0 z 20 pytań uzupełnionych';
+  document.getElementById('prog-score').textContent='';
+  ['cta','rbox','err','dashboard','cost-box','tl-box'].forEach(function(id){document.getElementById(id).style.display='none';});
+  document.getElementById('scan-results').innerHTML='';
+  setStepper(1);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
