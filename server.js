@@ -281,7 +281,7 @@ app.post('/generate-report', async (req, res) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 2500,
+        max_tokens: 4000,
         messages: [{ role: 'user', content: buildReportPrompt(data) }],
       }),
     });
@@ -382,16 +382,96 @@ app.post('/scan-domain', async (req, res) => {
   checks.push({
     name: 'Skanowanie portów i podatności',
     status: 'info',
-    detail: 'Wymaga pełnego audytu technicznego. Skontaktuj się z nami pod adresem kontakt@nis2-audytor.pl po szczegółową ofertę.',
+    detail: 'Wymaga pełnego audytu technicznego. Skontaktuj się z nami: mateusz.sidor@interia.eu',
   });
 
   checks.push({
     name: 'Weryfikacja wycieków danych (HIBP)',
     status: 'info',
-    detail: 'Sprawdzenie czy firmowe adresy e-mail wyciekły w znanych bazach danych. Skontaktuj się z nami po szczegółową ofertę.',
+    detail: 'Sprawdzenie czy firmowe adresy e-mail wyciekły w znanych bazach danych. Skontaktuj się: mateusz.sidor@interia.eu',
   });
 
   res.json({ success: true, results: { domain, checks } });
+});
+
+// ── POST /send-report — wysyłka raportu emailem przez Resend ──────────────────
+app.post('/send-report', async (req, res) => {
+  const { email, firma, reportText } = req.body;
+  if (!email || !reportText) {
+    return res.status(400).json({ error: 'Brak adresu e-mail lub treści raportu.' });
+  }
+
+  // Jeśli brak klucza Resend — zwróć sukces bez wysyłki (tryb demo)
+  if (!process.env.RESEND_API_KEY) {
+    console.log(`[send-report] RESEND_API_KEY nie ustawiony — raport dla ${email} nie wysłany (tryb demo)`);
+    return res.json({ success: true, demo: true });
+  }
+
+  // Konwersja tekstu raportu na prosty HTML
+  const htmlBody = reportText
+    .split('\n\n')
+    .map(p => {
+      const trimmed = p.trim();
+      if (!trimmed) return '';
+      if (trimmed.startsWith('SEKCJA:')) {
+        const title = trimmed.replace('SEKCJA:', '').trim();
+        return `<h2 style="color:#185FA5;font-size:15px;font-family:sans-serif;margin:24px 0 8px;border-bottom:1px solid #E6F1FB;padding-bottom:6px;text-transform:uppercase;letter-spacing:0.05em">${title}</h2>`;
+      }
+      return `<p style="font-family:sans-serif;font-size:13px;line-height:1.7;color:#1a1a18;margin:0 0 10px">${trimmed}</p>`;
+    })
+    .join('');
+
+  const html = `
+<!DOCTYPE html>
+<html lang="pl">
+<head><meta charset="UTF-8"><title>Raport KSC/NIS2</title></head>
+<body style="background:#F7F6F2;padding:32px 16px;margin:0">
+  <div style="max-width:680px;margin:0 auto;background:white;border-radius:10px;overflow:hidden;border:1px solid #D3D1C7">
+    <div style="background:#0C447C;padding:24px 28px">
+      <div style="color:rgba(255,255,255,0.7);font-size:11px;font-family:sans-serif;margin-bottom:8px">KSC / NIS2 · Ustawa z 3 kwietnia 2026 r.</div>
+      <h1 style="color:white;font-size:18px;font-family:sans-serif;margin:0 0 4px">Raport zgodności KSC/NIS2</h1>
+      <div style="color:rgba(255,255,255,0.8);font-size:13px;font-family:sans-serif">${firma || 'Analiza luk'}</div>
+    </div>
+    <div style="padding:28px">
+      ${htmlBody}
+    </div>
+    <div style="padding:16px 28px;background:#F7F6F2;border-top:1px solid #D3D1C7;font-size:11px;color:#888780;font-family:sans-serif;line-height:1.6">
+      Raport wygenerowany przez <a href="https://www.nis2-audytor.pl" style="color:#185FA5">nis2-audytor.pl</a>. 
+      Dokument ma charakter informacyjno-analityczny i nie stanowi porady prawnej.
+    </div>
+  </div>
+</body>
+</html>`;
+
+  try {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      },
+      body: JSON.stringify({
+        from: 'Audytor NIS2 <raport@nis2-audytor.pl>',
+        to: [email],
+        subject: `Raport KSC/NIS2 — ${firma || 'analiza gotowości'}`,
+        html,
+        reply_to: 'mateusz.sidor@interia.eu',
+      }),
+    });
+
+    if (!r.ok) {
+      const err = await r.json();
+      throw new Error(err.message || `Resend błąd: ${r.status}`);
+    }
+
+    console.log(`[send-report] Raport wysłany na ${email}`);
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error('[send-report]', err.message);
+    // Nie blokuj użytkownika — raport i tak widzi na ekranie
+    res.json({ success: false, warning: 'Raport wygenerowany, ale nie udało się wysłać e-maila.' });
+  }
 });
 
 // ── health check ──────────────────────────────────────────────────────────────

@@ -265,8 +265,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <!-- HERO -->
 <div class="hero">
   <div class="hero-badge">KSC / NIS2 · Ustawa z 3 kwietnia 2026 r. · Branża spożywcza</div>
-  <h1>Audyt zgodności z ustawą KSC — sprawdź gotowość swojej firmy</h1>
-  <p>23 pytania, 5 minut, pełny raport luk z gotowymi dokumentami i kalkulacją kosztów wdrożenia. Raport dostosowany do Twojego sektora i skali działalności.</p>
+  <h1>Analiza gotowości na wymogi KSC/NIS2 — branża spożywcza</h1>
+  <p>Kwestionariusz obejmuje 23 obszary wymagane przez ustawę KSC. Efektem jest spersonalizowany raport luk, harmonogram działań z datami oraz komplet gotowych dokumentów compliance.</p>
   <div class="hero-pills">
     <div class="hero-pill"><strong>do 7 mln EUR</strong> kara dla podmiotu ważnego</div>
     <div class="hero-pill"><strong>7 maj – 3 paź 2026</strong> okno rejestracji w S46</div>
@@ -640,14 +640,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
     </div>
   </div>
 
-  <div class="upsell">
-    <div class="upsell-text">
-      <h4>Monitoring KSC — bądź zawsze gotowy na kontrolę</h4>
-      <p>Miesięczna aktualizacja o nowych obowiązkach, terminach i zmianach w przepisach. Jedno powiadomienie — zero zaskoczeń.</p>
-    </div>
-    <button class="btn-upsell" onclick="alert('Dziękujemy! Skontaktujemy się w ciągu 24 godzin.')">Zamów monitoring — 299 zł/mc</button>
-  </div>
-
   <div class="disclaimer">Raport sporządzono na podstawie deklaracji własnych firmy i ma charakter informacyjno-analityczny. <strong>Nie stanowi porady prawnej ani wiążącej interpretacji przepisów UKSC.</strong> FAQ Ministerstwa Cyfryzacji, na którym oparty jest raport, jest dokumentem pomocniczym i interpretacyjnym — nie ma mocy prawnej. Ostateczna kwalifikacja statusu podmiotu wymaga samodzielnej analizy przez firmę lub konsultacji z radcą prawnym specjalizującym się w KSC/NIS2.</div>
 
   <div class="r-actions">
@@ -942,6 +934,21 @@ function renderReport(text){
   document.getElementById('rbox').style.display='block';
   document.getElementById('rbox').scrollIntoView({behavior:'smooth'});
   setStepper(3);
+
+  // Wysyłka emailem w tle
+  if(fd.email && fd.email.includes('@')){
+    fetch(API+'/send-report',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email:fd.email,firma:fd.firma,reportText:text})
+    }).then(function(r){return r.json();}).then(function(d){
+      if(d.success&&!d.demo){
+        var note=document.createElement('div');
+        note.style.cssText='font-size:12px;color:var(--green);padding:8px 12px;background:var(--green-l);border-radius:var(--rs);margin-bottom:12px';
+        note.textContent='Raport wysłany na adres e-mail: '+fd.email;
+        document.getElementById('r-body').prepend(note);
+      }
+    }).catch(function(){});
+  }
 }
 
 var TPL_TITLES={polityka:'Polityka Bezpieczeństwa Informacji',incydenty:'Procedura Zgłaszania Incydentów',rejestr:'Rejestr Aktywów Informacyjnych',ryzyko:'Matryca Analizy Ryzyka',szkolenie:'Program Szkolenia Pracowników'};
