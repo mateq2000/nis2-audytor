@@ -279,7 +279,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <div class="stepper">
   <div class="step-item active" id="step1"><div class="step-dot">1</div>Dane firmy i kwalifikacja</div>
   <div class="step-line"></div>
-  <div class="step-item" id="step2"><div class="step-dot">2</div>Audyt 20 obszarów</div>
+  <div class="step-item" id="step2"><div class="step-dot">2</div>Audyt 23 obszarów</div>
   <div class="step-line"></div>
   <div class="step-item" id="step3"><div class="step-dot">3</div>Raport i dokumenty</div>
 </div>
@@ -288,7 +288,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;backgrou
 <div class="prog-wrap">
   <div class="prog-bar"><div class="prog-fill" id="prog" style="width:0%"></div></div>
   <div class="prog-label">
-    <span id="prog-label">0 z 20 pytań uzupełnionych</span>
+    <span id="prog-label">0 z 23 pytań uzupełnionych</span>
     <span id="prog-score" style="font-weight:600;color:var(--blue)"></span>
   </div>
 </div>
@@ -988,7 +988,7 @@ function resetAll(){
   ['f-name','f-nip','f-email','f-domain'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
   ['f-emp','f-rev','f-sec'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});
   document.getElementById('prog').style.width='0%';
-  document.getElementById('prog-label').textContent='0 z 20 pytań uzupełnionych';
+  document.getElementById('prog-label').textContent='0 z 23 pytań uzupełnionych';
   document.getElementById('prog-score').textContent='';
   ['cta','rbox','err','dashboard','cost-box','tl-box'].forEach(function(id){document.getElementById(id).style.display='none';});
   document.getElementById('scan-results').innerHTML='';

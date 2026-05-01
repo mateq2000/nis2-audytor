@@ -199,65 +199,71 @@ Zawrzyj:
 7. Wyciągnięcie wniosków i aktualizacja procedury
 Pisz czystym tekstem — bez markdown. Format: operacyjna instrukcja do wydruku.`,
 
-    rejestr: `Napisz szablon "Rejestru Aktywów Informacyjnych" dla firmy "${firma}" z sektora ${sectorLabel}. Rejestr jest wymagany przez UKSC jako podstawa analizy ryzyka.
+    rejestr: `Napisz szablon "Rejestru Aktywów Informacyjnych" dla firmy "${firma}" z sektora ${sectorLabel}. Rejestr jest wymagany przez UKSC jako podstawa analizy ryzyka. W nagłówku użyj roku 2026.
 
 Zawrzyj:
 1. Instrukcję wypełniania i aktualizacji rejestru (kto, kiedy, jak często)
-2. Tabelę z kolumnami: ID, Nazwa aktywa, Typ (sprzęt/oprogramowanie/dane/usługa zewnętrzna), Właściciel, Lokalizacja fizyczna/chmura, Klasyfikacja (krytyczny/ważny/standardowy), Backup (tak/nie/częstotliwość), Powiązane systemy, Uwagi
-3. Przykładowo wypełnione 12 wierszy TYPOWYCH dla zakładu spożywczego, np.:
-   - System ERP (np. SAP, Comarch)
-   - System MES / SCADA linii produkcyjnych
-   - Stacje wagowe i etykietowania
-   - System HACCP / dokumentacja jakości
-   - Serwer plików z recepturami i dokumentacją
-   - Serwer poczty e-mail
-   - System CRM / baza danych klientów
-   - Backup NAS / chmura
-   - Urządzenia mobilne pracowników
-   - Oprogramowanie księgowe
-   - VPN dostępu zdalnego
-   - System monitoringu CCTV zakładu
-4. Instrukcję klasyfikacji aktywów (co jest "krytyczne" w branży spożywczej)
+2. Tabelę z kolumnami: ID, Nazwa aktywa, Typ, Właściciel, Lokalizacja/chmura, Klasyfikacja (krytyczny/ważny/standardowy), Backup, Powiązane systemy, Uwagi
+3. Dokładnie 12 wierszy TYPOWYCH dla zakładu spożywczego:
+   1. System ERP (np. Comarch)
+   2. System MES/SCADA linii produkcyjnych
+   3. Stacje wagowe i etykietowania
+   4. System HACCP i dokumentacja jakości
+   5. Serwer plików z recepturami i dokumentacją technologiczną
+   6. Serwer poczty e-mail (Microsoft 365 lub lokalny)
+   7. System CRM i baza danych klientów/kontrahentów
+   8. Backup NAS i kopia offsite/chmura
+   9. Urządzenia końcowe (komputery, laptopy pracownicze)
+   10. VPN dostępu zdalnego
+   11. Systemy chłodnicze/BMS podłączone do sieci
+   12. Serwer plików kadrowo-finansowych
+4. Krótką instrukcję klasyfikacji aktywów: co jest "krytyczne" vs "ważne" w branży spożywczej
 Pisz czystym tekstem — bez markdown.`,
 
-    ryzyko: `Napisz "Matrycę Analizy Ryzyka Cyberbezpieczeństwa" dla firmy "${firma}" z sektora ${sectorLabel}.
+    ryzyko: `Napisz "Matrycę Analizy Ryzyka Cyberbezpieczeństwa" dla firmy "${firma}" z sektora ${sectorLabel}. Data opracowania: 2026.
 
 Zawrzyj:
-1. Krótką instrukcję metodologii (skala prawdopodobieństwa 1-5, skala wpływu 1-5, poziom ryzyka = P × W)
-2. Tabelę z kolumnami: ID, Zagrożenie, Aktywo, Prawdopodobieństwo (1-5), Wpływ (1-5), Poziom ryzyka, Obecne zabezpieczenia, Zalecane działanie, Właściciel
-3. Minimum 12 konkretnych zagrożeń typowych dla zakładu spożywczego, np.:
-   - Atak ransomware na serwer ERP (zatrzymanie produkcji)
-   - Phishing pracownika (wyciek danych logowania)
-   - Awaria systemu SCADA/MES (wstrzymanie linii)
-   - Wyciek danych receptur do konkurencji
-   - Atak na system HACCP (zagrożenie bezpieczeństwa żywności)
-   - Nieautoryzowany dostęp zdalny (np. przez VPN dostawcy ERP)
-   - Brak ciągłości chłodniczej przez cyberatak
-   - Fałszywe faktury (BEC — Business Email Compromise)
-   - Atak na stronę WWW i sklep internetowy
-   - Wewnętrzne zagrożenie (niezadowolony pracownik)
-   - Utrata danych przez awarię sprzętu (brak backupu)
-   - Kompromitacja dostawcy IT (atak przez łańcuch dostaw)
-4. Podsumowanie: top 3 ryzyka do natychmiastowego adresowania
+CZĘŚĆ 1 — METODOLOGIA (skala P 1-5, skala W 1-5, ryzyko = P×W, interpretacja: 1-4 niskie, 5-9 średnie, 10-14 wysokie, 15-25 krytyczne)
+
+CZĘŚĆ 2 — MATRYCA (dokładnie 13 zagrożeń, każde z polami: ID, Zagrożenie, Aktywo, P, W, Poziom ryzyka, Obecne zabezpieczenia, Zalecane działanie, Właściciel):
+R-01: Atak ransomware na ERP
+R-02: Phishing — wyciek danych logowania
+R-03: Awaria SCADA/MES — wstrzymanie produkcji
+R-04: Wyciek receptur do konkurencji
+R-05: Cyberatak na system HACCP
+R-06: Nieautoryzowany dostęp VPN dostawcy
+R-07: Cyberatak na systemy chłodnicze
+R-08: Atak BEC — fałszywe faktury
+R-09: Atak na stronę WWW
+R-10: Zagrożenie wewnętrzne — pracownik
+R-11: Utrata danych przez awarię sprzętu
+R-12: Atak przez łańcuch dostaw IT
+R-13: Nieautoryzowany fizyczny dostęp do serwerowni
+
+CZĘŚĆ 3 — TOP 3 ryzyka do natychmiastowego adresowania z uzasadnieniem.
 Pisz czystym tekstem — bez markdown.`,
 
-    szkolenie: `Napisz "Program Szkolenia Pracowników z Cyberbezpieczeństwa" dla firmy "${firma}" z sektora ${sectorLabel}.
+    szkolenie: `Napisz "Program Szkolenia Pracowników z Cyberbezpieczeństwa" dla firmy "${firma}" z sektora ${sectorLabel}. Data opracowania: 2026.
 
-Zawrzyj:
-1. Cel i podstawa prawna szkolenia (art. 21 NIS2, UKSC 2026)
-2. Grupy docelowe i zakres:
-   - Zarząd (2h): odpowiedzialność osobista, UKSC, decyzje inwestycyjne
-   - Pracownicy IT (4h): SZBI, reagowanie na incydenty, zarządzanie systemami
-   - Wszyscy pracownicy (1,5h): phishing, hasła, urządzenia mobilne, praca zdalna
-3. Szczegółowy konspekt modułu dla WSZYSTKICH PRACOWNIKÓW (1,5h):
-   Moduł 1 (20 min): Co to jest cyberbezpieczeństwo i dlaczego dotyczy mnie
-   Moduł 2 (30 min): Jak rozpoznać phishing — 10 przykładów e-maili i SMS-ów
-   Moduł 3 (20 min): Bezpieczne hasła i MFA (praktyczne ćwiczenie)
-   Moduł 4 (15 min): Bezpieczna praca na telefonie i komputerze firmowym
-   Moduł 5 (5 min): Co zrobić gdy podejrzewam incydent — numer telefonu i procedura
-4. Test wiedzy (10 pytań jednokrotnego wyboru) — gotowy do wydruku lub wgrania do platformy e-learning
-5. Lista obecności do podpisania (wymóg UKSC — dowód przeprowadzenia szkolenia)
-6. Harmonogram szkoleń: pierwsze do 3 kwi 2027, powtarzanie co 12 miesięcy
+CZĘŚĆ I — CEL I PODSTAWA PRAWNA (art. 21 NIS2, art. 20 NIS2 odpowiedzialność zarządu, UKSC 2026, ISO 27001)
+
+CZĘŚĆ II — GRUPY DOCELOWE I ZAKRES:
+- Zarząd (2h): odpowiedzialność osobista, UKSC, decyzje inwestycyjne, scenariusz kryzysowy
+- Pracownicy IT (4h): SZBI, reagowanie na incydenty, OT/SCADA, zarządzanie systemami
+- Wszyscy pracownicy (1,5h): szczegółowy konspekt poniżej
+
+CZĘŚĆ III — KONSPEKT DLA WSZYSTKICH PRACOWNIKÓW (1,5h):
+Moduł 1 (20 min): Czym jest cyberbezpieczeństwo — przykłady ataków na mleczarnie i firmy spożywcze w Polsce i Europie
+Moduł 2 (30 min): Phishing — 8 przykładów e-maili phishingowych z opisem jak je rozpoznać
+Moduł 3 (20 min): Bezpieczne hasła i MFA — praktyczne zasady i ćwiczenie
+Moduł 4 (15 min): Bezpieczna praca zdalna i na urządzeniach mobilnych
+Moduł 5 (5 min): Procedura zgłaszania incydentu — kto, jak, numer telefonu
+
+CZĘŚĆ IV — TEST WIEDZY (10 pytań jednokrotnego wyboru z odpowiedziami)
+
+CZĘŚĆ V — LISTA OBECNOŚCI (szablon do wydruku z podpisami)
+
+CZĘŚĆ VI — HARMONOGRAM (pierwsze szkolenie do 3 kwi 2027, powtarzanie co 12 miesięcy)
 Pisz czystym tekstem — bez markdown.`,
   };
 
@@ -281,7 +287,7 @@ app.post('/generate-report', async (req, res) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
+        max_tokens: 6000,
         messages: [{ role: 'user', content: buildReportPrompt(data) }],
       }),
     });
@@ -317,7 +323,7 @@ app.post('/generate-template', async (req, res) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
+        max_tokens: 8000,
         messages: [{ role: 'user', content: buildTemplatePrompt(firma, sector, workers, templateType) }],
       }),
     });
