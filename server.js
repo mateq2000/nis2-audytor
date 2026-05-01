@@ -4,7 +4,6 @@
 
 const express = require('express');
 const cors    = require('cors');
-const rateLimit = require('express-rate-limit'); // NOWE: Import biblioteki
 require('dotenv').config();
 
 const { KNOWLEDGE_BASE } = require('./knowledge-base');
@@ -12,29 +11,10 @@ const { KNOWLEDGE_BASE } = require('./knowledge-base');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// NOWE: Railway używa tzw. proxy (serwerów pośredniczących). 
-// Ta linijka jest KRYTYCZNA, aby serwer poprawnie rozpoznawał prawdziwe IP użytkownika.
-app.set('trust proxy', 1); 
-
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// NOWE: Konfiguracja limitu - 3 raporty na 24 godziny na jedno IP
-const reportLimiter = rateLimit({
-  windowMs: 24 * 60 * 60 * 1000, // 24 godziny w milisekundach
-  max: 3, // Maksymalnie 3 zapytania
-  message: { error: 'Przekroczono limit darmowych raportów na dzisiaj. Spróbuj ponownie jutro.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// NOWE: Konfiguracja limitu dla szablonów - np. 15 szablonów na dzień
-const templateLimiter = rateLimit({
-  windowMs: 24 * 60 * 60 * 1000, 
-  max: 15, 
-  message: { error: 'Przekroczono limit generowania dokumentów.' },
-});
 // ── nazwy sektorów ────────────────────────────────────────────────────────────
 const SECTORS = {
   mleczarstwo:            'Mleczarstwo / przetwórstwo mleka',
@@ -188,6 +168,9 @@ function buildTemplatePrompt(firma, sector, workers, type) {
   const templates = {
     polityka: `Napisz kompletny, gotowy do podpisania projekt "Polityki Bezpieczeństwa Informacji" (PBI) dla firmy "${firma}" działającej w sektorze: ${sectorLabel}, zatrudniającej ${workers || 'kilkadziesiąt'} pracowników. Dokument ma być zgodny z wymogami art. 21 dyrektywy NIS2 i UKSC z 2026 r.
 
+WAŻNE: W nagłówku dokumentu użyj roku 2026 (nie 2025). Numer dokumentu: PBI-001/2026. Data opracowania: 2026.
+Pisz czystym tekstem — bez markdown, bez gwiazdek.
+
 Zawrzyj następujące sekcje:
 1. Cel i zakres dokumentu
 2. Definicje (cyberbezpieczeństwo, incydent, SZBI, aktywo informacyjne)
@@ -282,7 +265,7 @@ Pisz czystym tekstem — bez markdown.`,
 }
 
 // ── POST /generate-report ─────────────────────────────────────────────────────
-app.post('/generate-report', reportLimiter, async (req, res) => {
+app.post('/generate-report', async (req, res) => {
   const data = req.body;
   if (!data.firma || !data.answers || Object.keys(data.answers).length < 10) {
     return res.status(400).json({ error: 'Uzupełnij dane firmy i odpowiedz na co najmniej 10 pytań.' });
@@ -298,7 +281,7 @@ app.post('/generate-report', reportLimiter, async (req, res) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4096,
+        max_tokens: 2500,
         messages: [{ role: 'user', content: buildReportPrompt(data) }],
       }),
     });
@@ -318,7 +301,7 @@ app.post('/generate-report', reportLimiter, async (req, res) => {
 });
 
 // ── POST /generate-template ───────────────────────────────────────────────────
-app.post('/generate-template', templateLimiter, async (req, res) => {
+app.post('/generate-template', async (req, res) => {
   const { firma, sector, workers, templateType } = req.body;
   if (!firma || !templateType) {
     return res.status(400).json({ error: 'Brak wymaganych danych.' });
@@ -334,7 +317,7 @@ app.post('/generate-template', templateLimiter, async (req, res) => {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 4096,
+        max_tokens: 4000,
         messages: [{ role: 'user', content: buildTemplatePrompt(firma, sector, workers, templateType) }],
       }),
     });
@@ -399,13 +382,13 @@ app.post('/scan-domain', async (req, res) => {
   checks.push({
     name: 'Skanowanie portów i podatności',
     status: 'info',
-    detail: 'Pełny skan zewnętrznej powierzchni ataku dostępny w pakiecie rozszerzonym.',
+    detail: 'Wymaga pełnego audytu technicznego. Skontaktuj się z nami pod adresem kontakt@nis2-audytor.pl po szczegółową ofertę.',
   });
 
   checks.push({
     name: 'Weryfikacja wycieków danych (HIBP)',
     status: 'info',
-    detail: 'Sprawdzenie czy adresy e-mail domeny wyciekły dostępne w pakiecie rozszerzonym.',
+    detail: 'Sprawdzenie czy firmowe adresy e-mail wyciekły w znanych bazach danych. Skontaktuj się z nami po szczegółową ofertę.',
   });
 
   res.json({ success: true, results: { domain, checks } });
